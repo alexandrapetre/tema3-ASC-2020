@@ -1,0 +1,86 @@
+		README - Tema 3 - ASC - Petre Alexandra 335CB
+
+
+
+
+----- Cum s-a implementat soluția? ------
+
+	La început în funcția de init, am setat fiecare cheie din
+hashmap cu KEY_INVALID. Pentru a putea face următoarele verificări.
+
+	Am implementat linear probing și mi-am creat hashtable-ul ca un
+vector de perechi (key, value). 
+	Insert -  verific dacă în hashmap încap numKeys, dacă nu încap fac reshape. 
+Am ales să am load factor = 80%. In funcția kernel pentru insert parcurg vectorul 
+în care trebuie să inserez. Pozitia la care trebuie să inserez cheia și valoarea
+pe care le primesc ca parametru, o calculez cu funcția de hash.
+Verific dacă pe poziția indicată de functia hash este vreo valoare,
+dacă key = 0 atunci inserez în vector perecha (key, value) primită.
+
+	Get - mi-am creat un vector de valori pe care îl dau ca parametru
+funcției kernel. Vecotrul deviceValues, în acest vector stochez valorile
+pe care le găsesc pe poziția indicată de hash function. Copiez valorile
+din vectorul device pe vectorul host (values) și intorc vectorul cu
+valori.
+
+	Reshape - se creeaza un nou vector pe GPU de dimensiunea nouă și se 
+inițializeză toate cheile cu KEY_INVALID. După se apelează o funcție kernel
+care copiază din vectorul inițial perechile (key, value) în noul vector de
+dimensiune mai mare. Pointer-ul hashmap acum va pointa catre noul hashmap.
+Eliberez memoria ocupată de hashmap-ul vechi.
+
+	Linear Probing - pentru fiecare cheie cătuată sau pentru fiecare pereche
+pe care trebuia să o inserez, calculez hash-ul (poziția) pe care ar trebui inserată 
+valoarea sau pe care se găsește valoarea. Dacă nu se face match cu cheia sau 
+cheia nu e KEY_INVALID (pentru inserare), trec la următoarea poziție și verific
+
+
+----- Cum se stochează hashtable în memoria GPU VRAM? ------
+
+	Am stochat HashTable într-un vector de perechi (key, value). Am salvat într-o
+variabilă globală dimensiunea hashmap-ului (hashSize) și intr-o altă variabilă
+numărul de perechi nevide din hashmap (pentru load factor).
+
+
+----- Output la performanțele obținute și discutie rezultate ------
+
+
+	Am obtinut aceste rezultate pe coada ibm, nu am reusit sa rulez pe coada hp-sl
+pe toate nodurile am primit SegFault la rulare. Pe ibm pe nodul wn04 primesc puncte
+pe checker, in schimb pe wn03, wn01, dureaza foarte mult sa rulez.
+
+
+-------------- Test T1 --------------
+OK       +10 pts         HASH_BATCH_INSERT, 1000000, 100, 80
+OK       +10 pts         HASH_BATCH_GET, 1000000, 100, 80
+TOTAL    +20 pts
+
+-------------- Test T2 --------------
+OK       +5 pts  HASH_BATCH_INSERT, 2000000, 100, 80
+OK       +5 pts  HASH_BATCH_GET, 2000000, 100, 80
+TOTAL    +10 pts
+
+-------------- Test T3 --------------
+OK       +5 pts  HASH_BATCH_INSERT, 2000000, 100, 80
+OK       +5 pts  HASH_BATCH_INSERT, 2000000, 50, 80
+OK       +5 pts  HASH_BATCH_GET, 2000000, inf, 80
+OK       +5 pts  HASH_BATCH_GET, 2000000, 100, 80
+TOTAL    +20 pts
+
+-------------- Test T4 --------------
+OK       +5 pts  HASH_BATCH_INSERT, 2500000, 125, 80
+OK       +5 pts  HASH_BATCH_INSERT, 2500000, 62.5, 80
+OK       +5 pts  HASH_BATCH_INSERT, 2500000, 41.6667, 80
+OK       +5 pts  HASH_BATCH_INSERT, 2500000, 35.7143, 80
+OK       +5 pts  HASH_BATCH_GET, 2500000, 125, 80
+OK       +5 pts  HASH_BATCH_GET, 2500000, 83.3333, 80
+OK       +5 pts  HASH_BATCH_GET, 2500000, 125, 80
+OK       +5 pts  HASH_BATCH_GET, 2500000, 125, 80
+TOTAL    +40 pts
+
+
+TOTAL gpu_hashtable  90/90
+
+
+Rezultatele obținute. Am mereu loadfacor = 80%
+
